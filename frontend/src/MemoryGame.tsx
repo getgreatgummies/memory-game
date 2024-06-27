@@ -1,12 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Shuffle } from 'lucide-react';
-
 import './globals.css'
 
-  const cardImages = [
-    '🐵', '🐔', '🐼', '🐧',
-    '🦁', '🐮', '🐷', '🐸'
-  ];
+
 
   interface Card {
     id: number;
@@ -16,20 +12,34 @@ import './globals.css'
 
 const MemoryGame: React.FC = () => {
   const [cards, setCards] = useState<Card[]>([]);
+  const [playerTurn, setPlayerTurn] = useState(1)
 
   useEffect(() => {
-    initializeGame();
+    fetch('/api/initialize')
+      .then(response => response.json())
+      .then(data => {
+        if (data.cards) {
+          setCards(data.cards.map((image: string, index: number) => ({ id: index, image, flipped: false })));
+        } else {
+          console.error('Cards data is missing or in an unexpected format:', data);
+        }
+      })
   }, []);
-  
-  const initializeGame = () => {
-    const shuffledCards = [...cardImages, ...cardImages]
-      .sort(() => Math.random() - 0.5)
-      .map((image, index) => ({ id: index, image, flipped: false }));
-    setCards(shuffledCards);
-
-  };
 
   const handleCardClick = (id: number) => {
+    fetch('/api/turn', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ player_id: playerTurn, card_id: id })
+    })
+    .then(response => response.json())
+    .then(data => {
+      setPlayerTurn(data.current_turn)
+      // Update local state with new scores
+    });
+
     setCards(prevCards =>
       prevCards.map(card =>
         card.id === id ? { ...card, flipped: !card.flipped } : card
@@ -41,10 +51,10 @@ const MemoryGame: React.FC = () => {
     <div className="memory-game">
       <h1 className="game-title">Memory Game</h1>
       <div className="game-info">
-        <span className="score">Player 1 Score: 20</span>
-        <span className="score">Player 2 Score: 60</span>
+        <span className={`score ${playerTurn === 1 ? 'player-turn' : ''}`}>Player 1 Score: 0</span>
+        <span className={`score ${playerTurn === 2 ? 'player-turn' : ''}`}>Player 2 Score: 0</span>
       </div>
-      <button onClick={initializeGame} className="new-game-button">
+      <button className="new-game-button">
         <Shuffle className="shuffle-icon" /> New Game
       </button>
       <div className='card-grid cols-4'>
