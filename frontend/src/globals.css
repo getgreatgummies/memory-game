@@ -7,6 +7,9 @@
   backface-visibility: hidden;
 }
 
+.perspective-1000 {
+  perspective: 1000px;
+}
 
 .transform-style-preserve-3d {
   transform-style: preserve-3d;
@@ -65,17 +68,6 @@
   margin-right: 0.5rem;
 }
 
-.difficulty-selector {
-  margin-bottom: 1rem;
-}
-
-.difficulty-select {
-  padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
-  background-color: white;
-  color: #1e3a8a;
-  font-weight: 600;
-}
 
 .new-game-button {
   display: flex;
@@ -104,9 +96,9 @@
   perspective: 1000px;
 }
 
-.cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-.cols-6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
-.cols-8 { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+.cols-4 { 
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
 
 .card {
   cursor: pointer;
@@ -115,10 +107,10 @@
   transform-style: preserve-3d;
 }
 
-.card-size-large { width: 6rem; height: 6rem; }
-.card-size-medium { width: 5rem; height: 5rem; }
-.card-size-small { width: 4rem; height: 4rem; }
-.card-size-tiny { width: 3rem; height: 3rem; }
+.card-size-medium { 
+  width: 5rem;
+   height: 5rem; 
+}
 
 .card.flipped {
   transform: rotateY(180deg);
