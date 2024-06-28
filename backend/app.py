@@ -22,15 +22,18 @@ def handle_turn():
         handle_first_flip(card_id)
     elif game.flips_this_turn == 1:
         handle_second_flip(card_id)
-        scores = check_match()  # Ensure scores are updated here
-        game.card1 = None
-        game.card2 = None
+        scores, is_match = check_match()  # Ensure scores are updated here
         response = jsonify({
             "success": True, 
             "current_turn": game.current_turn,  # This will still show Player 1
             "flips_this_turn": game.flips_this_turn,
-            "scores": scores  # Use updated scores
+            "scores": scores , # Use updated scores
+            "is_match": is_match,
+            "card1": game.card1,
+            "card2": game.card2
         })
+        game.card1 = None
+        game.card2 = None
         toggle_player_turn()  # Toggle the turn after sending the response
         return response
     # Response for the first flip
@@ -54,13 +57,16 @@ def handle_second_flip(card_id):
 def check_match():
     print(f'Card1: {game.cards[game.card1]}')
     print(f'Card2: {game.cards[game.card2]}')
-    if game.cards[game.card1] == game.cards[game.card2]:
+    is_match = game.cards[game.card1] == game.cards[game.card2]
+    if is_match:
         print('congrats!')
         if game.current_turn == 1:
             game.scores[0] += 10
         elif game.current_turn == 2:
             game.scores[1] += 10
-    return game.scores
+    else:
+        print('not a match!')
+    return game.scores, is_match
 
 def toggle_player_turn():
     game.current_turn = 2 if game.current_turn == 1 else 1

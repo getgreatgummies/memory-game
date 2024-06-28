@@ -6,8 +6,8 @@ class MemoryGame:
         self.scores = [0, 0]
         self.current_turn = 1
         self.flips_this_turn = 0
-        self.card1 = 0
-        self.card2 = 0
+        self.card1 = None
+        self.card2 = None
         self.shuffle_cards()
 
     ## returns cards in a random order

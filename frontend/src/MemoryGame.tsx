@@ -38,9 +38,23 @@ const MemoryGame: React.FC = () => {
     .then(response => response.json())
     .then(data => {
       if(data.flips_this_turn == 2) {
-        setScores(data.scores)
+        setScores(data.scores);
+        if (!data.is_match) {
+          // Use a closure to capture the current state when the timeout executes
+          setTimeout(() => {
+            setCards(prevCards => {
+              return prevCards.map(card => {
+                if (card.id === data.card1 || card.id === data.card2) {
+                  return { ...card, flipped: false };
+                }
+                return card;
+              });
+            });
+          }, 1000);
+        }
         setPlayerTurn(prevTurn => prevTurn === 1 ? 2 : 1);
-      }      // Update local state with new scores
+        
+      }  
     });
 
     setCards(prevCards =>
