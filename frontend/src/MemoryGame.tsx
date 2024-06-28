@@ -28,6 +28,11 @@ const MemoryGame: React.FC = () => {
   }, []);
 
   const handleCardClick = (id: number) => {
+    const card = cards.find(card => card.id === id);
+    if (card && card.flipped) {
+      return; // Do nothing if the card is already flipped
+    }
+
     fetch('/api/turn', {
       method: 'POST',
       headers: {
