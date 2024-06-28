@@ -13,6 +13,7 @@ import './globals.css'
 const MemoryGame: React.FC = () => {
   const [cards, setCards] = useState<Card[]>([]);
   const [playerTurn, setPlayerTurn] = useState(1)
+  const [scores, setScores] = useState([0,0])
 
   useEffect(() => {
     fetch('/api/initialize')
@@ -32,12 +33,14 @@ const MemoryGame: React.FC = () => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ player_id: playerTurn, card_id: id })
+      body: JSON.stringify({ card_id: id })
     })
     .then(response => response.json())
     .then(data => {
-      setPlayerTurn(data.current_turn)
-      // Update local state with new scores
+      if(data.flips_this_turn == 2) {
+        setScores(data.scores)
+        setPlayerTurn(prevTurn => prevTurn === 1 ? 2 : 1);
+      }      // Update local state with new scores
     });
 
     setCards(prevCards =>
@@ -51,8 +54,8 @@ const MemoryGame: React.FC = () => {
     <div className="memory-game">
       <h1 className="game-title">Memory Game</h1>
       <div className="game-info">
-        <span className={`score ${playerTurn === 1 ? 'player-turn' : ''}`}>Player 1 Score: 0</span>
-        <span className={`score ${playerTurn === 2 ? 'player-turn' : ''}`}>Player 2 Score: 0</span>
+        <span className={`score ${playerTurn === 1 ? 'player-turn' : ''}`}>Player 1 Score: {scores[0]}</span>
+        <span className={`score ${playerTurn === 2 ? 'player-turn' : ''}`}>Player 2 Score: {scores[1]}</span>
       </div>
       <button className="new-game-button">
         <Shuffle className="shuffle-icon" /> New Game
