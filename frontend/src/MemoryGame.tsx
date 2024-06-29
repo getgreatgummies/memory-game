@@ -13,14 +13,14 @@ import './globals.css'
 
 const MemoryGame: React.FC = () => {
   const [cards, setCards] = useState<Card[]>([]);
-  const [playerTurn, setPlayerTurn] = useState(1)
+  const [playerTurn, setPlayerTurn] = useState<number | null>(1)
   const [scores, setScores] = useState([0,0])
 
   const totalScore = scores[0]! + scores[1]!;
 
   useEffect(() => {
-    if (totalScore === 80) {
-      if (scores[0]! == 40) {
+    if (totalScore === 100) {
+      if (scores[0]! == 50) {
         alert("Congrats, it's a tie!")
 
       }
@@ -33,19 +33,29 @@ const MemoryGame: React.FC = () => {
 
   useEffect(() => {
     fetch('/api/initialize')
-      .then(response => response.json())
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to initialize the game. Please try again.');
+        }
+        return response.json();
+      })
       .then(data => {
         if (data.cards) {
           setCards(data.cards.map((image: string, index: number) => ({ id: index, image, flipped: false })));
+          setPlayerTurn(data.current_turn)
         } else {
           console.error('Cards data is missing or in an unexpected format:', data);
         }
       })
+      .catch(error => {
+        alert(error.message);
+      });
   }, []);
 
   const handleCardClick = (id: number) => {
     const card = cards.find(card => card.id === id);
     if (card && card.flipped) {
+      console.log('Please select a card that is not already flipped');
       return;
     }
 
@@ -56,26 +66,32 @@ const MemoryGame: React.FC = () => {
       },
       body: JSON.stringify({ card_id: id })
     })
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to process the turn. Please try again.');
+      }
+      return response.json();
+    })
     .then(data => {
       if(data.flips_this_turn == 2) {
         setScores(data.scores);
         if (!data.is_match) {
           setTimeout(() => {
             setCards(prevCards => {
-              return prevCards.map(card => {
+              const updatedCards = prevCards.map(card => {
                 if (card.id === data.card1 || card.id === data.card2) {
                   return { ...card, flipped: false };
                 }
                 return card;
               });
+              return updatedCards;
             });
+            setPlayerTurn(prevTurn => prevTurn === 1 ? 2 : 1); // Moved inside setTimeout
           }, 1000);
         }
-        setPlayerTurn(prevTurn => prevTurn === 1 ? 2 : 1);
-        
-      }  
-    });
+      }
+      // Fetch game state after processing the turn
+    })
 
     setCards(prevCards =>
       prevCards.map(card =>
@@ -126,7 +142,7 @@ const MemoryGame: React.FC = () => {
           </div>
         ))}
       </div>
-      {totalScore === 80 && <Confetti />}
+      {totalScore === 100 && <Confetti />}
     </div>
   );
 };
