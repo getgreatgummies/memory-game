@@ -3,6 +3,7 @@ import random
 class MemoryGame:
     def __init__(self):
         self.cards = ['🐵', '🐔', '🐼', '🐧', '🦁', '🐮', '🐷', '🐸', '🦊','🐶'] * 2
+        self.cards_still_in_play = ['🐵', '🐔', '🐼', '🐧', '🦁', '🐮', '🐷', '🐸', '🦊','🐶']
         self.scores = [0, 0]
         self.current_turn = 1
         self.flips_this_turn = 0

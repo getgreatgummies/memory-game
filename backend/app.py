@@ -6,6 +6,21 @@ from models import MemoryGame
 app = Flask(__name__)
 game = MemoryGame()
 
+# Define a dictionary to map emojis to their titles
+emoji_to_title = {
+    "🐵": "monkey",
+    "🐔": "chicken",
+    "🐼": "panda",
+    "🐧": "penguin", 
+    "🦁": "lion", 
+    "🐮": "cow", 
+    "🐷": "pig", 
+    "🐸": "frog", 
+    "🦊": "fox",
+    "🐶": "dog"
+}
+
+
 @app.errorhandler(404)
 def not_found(error):
     return jsonify({'error': 'Not found'}), 404
@@ -17,12 +32,13 @@ def internal_error(error):
 @app.route('/initialize', methods=['GET'])
 def initialize_game():
     game.shuffle_cards()
+    state = game.get_game_state()  # Store the state in a variable
     game.current_turn = random.choice([1, 2])  # Randomly choose between player 1 and 2
     game.flips_this_turn = 0
     game.scores = [0,0]
     game.card1 = None
     game.card2 = None  
-    return jsonify(game.get_game_state())
+    return jsonify(state)
 
 @app.route('/turn', methods=['POST'])
 def handle_turn():
@@ -35,6 +51,8 @@ def handle_turn():
     elif game.flips_this_turn == 1:
         handle_second_flip(card_id)
         scores, is_match = check_match()
+        # Transform emojis to titles using the dictionary
+        cards_titles = [emoji_to_title[emoji] for emoji in game.cards_still_in_play if emoji in emoji_to_title]
         response = jsonify({
             "success": True, 
             "current_turn": game.current_turn,
@@ -42,7 +60,8 @@ def handle_turn():
             "scores": scores,
             "is_match": is_match,
             "card1": game.card1,
-            "card2": game.card2
+            "card2": game.card2,
+            "cards_still_in_play": cards_titles  # Use the transformed list
         })
         game.card1 = None
         game.card2 = None
@@ -53,6 +72,7 @@ def handle_turn():
         "success": True, 
         "current_turn": game.current_turn,
         "flips_this_turn": game.flips_this_turn,
+        "card1": game.card1,
         "scores": game.scores
     })
 
@@ -72,6 +92,9 @@ def check_match():
     is_match = game.cards[game.card1] == game.cards[game.card2]
     if is_match:
         print('congrats!')
+        # Remove only one matched card from the cards_still_in_play array
+        game.cards_still_in_play.remove(game.cards[game.card1])  # Remove the emoji by value
+        # Update scores based on the current player
         if game.current_turn == 1:
             game.scores[0] += 10
         elif game.current_turn == 2:
