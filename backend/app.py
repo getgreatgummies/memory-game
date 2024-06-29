@@ -1,5 +1,4 @@
-import random  # Add this import at the top of your file
-
+import random  
 from flask import Flask, jsonify, request, abort
 from models import MemoryGame
 
@@ -29,17 +28,21 @@ def not_found(error):
 def internal_error(error):
     return jsonify({'error': 'Server error'}), 500
 
+
+# Initialize a new game, shuffle cards, set initial scores and turns, and return the game state
 @app.route('/initialize', methods=['GET'])
 def initialize_game():
     game.shuffle_cards()
-    state = game.get_game_state()  # Store the state in a variable
-    game.current_turn = random.choice([1, 2])  # Randomly choose between player 1 and 2
+    state = game.get_game_state()
+    game.current_turn = random.choice([1, 2])
     game.flips_this_turn = 0
     game.scores = [0,0]
     game.card1 = None
     game.card2 = None  
     return jsonify(state)
 
+
+# Handles the logic for a player's turn, including flipping cards, checking for matches, and updating the game state
 @app.route('/turn', methods=['POST'])
 def handle_turn():
     data = request.get_json()
@@ -51,7 +54,6 @@ def handle_turn():
     elif game.flips_this_turn == 1:
         handle_second_flip(card_id)
         scores, is_match = check_match()
-        # Transform emojis to titles using the dictionary
         cards_titles = [emoji_to_title[emoji] for emoji in game.cards_still_in_play if emoji in emoji_to_title]
         response = jsonify({
             "success": True, 
@@ -61,11 +63,11 @@ def handle_turn():
             "is_match": is_match,
             "card1": game.card1,
             "card2": game.card2,
-            "cards_still_in_play": cards_titles  # Use the transformed list
+            "cards_still_in_play": cards_titles
         })
         game.card1 = None
         game.card2 = None
-        toggle_player_turn(is_match)  # Pass is_match to decide whether to toggle turn
+        toggle_player_turn(is_match)
         return response
 
     return jsonify({
@@ -86,15 +88,14 @@ def handle_second_flip(card_id):
     game.card2 = card_id
     game.flips_this_turn = 2
 
+# Compares two flipped cards, updates scores if they match, and logs the result
 def check_match():
     print(f'Card1: {game.cards[game.card1]}')
     print(f'Card2: {game.cards[game.card2]}')
     is_match = game.cards[game.card1] == game.cards[game.card2]
     if is_match:
         print('congrats!')
-        # Remove only one matched card from the cards_still_in_play array
-        game.cards_still_in_play.remove(game.cards[game.card1])  # Remove the emoji by value
-        # Update scores based on the current player
+        game.cards_still_in_play.remove(game.cards[game.card1])
         if game.current_turn == 1:
             game.scores[0] += 10
         elif game.current_turn == 2:

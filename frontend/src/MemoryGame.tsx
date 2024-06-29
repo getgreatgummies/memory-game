@@ -5,11 +5,12 @@ import './globals.css'
 
 
 
-  interface Card {
-    id: number;
-    image: string;
-    flipped: boolean;
-  }
+// Defines the structure for a Card object used in the Memory Game.
+interface Card {
+  id: number;
+  image: string;
+  flipped: boolean;
+}
 
 const MemoryGame: React.FC = () => {
   const [cards, setCards] = useState<Card[]>([]);
@@ -18,6 +19,7 @@ const MemoryGame: React.FC = () => {
 
   const totalScore = scores[0]! + scores[1]!;
 
+  // Checks if the total score has reached 100, indicating the end of the game, then determines who won
   useEffect(() => {
     if (totalScore === 100) {
       if (scores[0]! == 50) {
@@ -31,6 +33,7 @@ const MemoryGame: React.FC = () => {
     }
   }, [totalScore, scores]);
 
+  // Initializes game when the component mounts, including the cards and the current player's turn
   useEffect(() => {
     fetch('/api/initialize')
       .then(response => {
@@ -52,6 +55,8 @@ const MemoryGame: React.FC = () => {
       });
   }, []);
 
+
+  // sends a POST request to the server with the card's ID to process the player's turn
   const handleCardClick = (id: number) => {
     const card = cards.find(card => card.id === id);
     if (card && card.flipped) {
@@ -86,11 +91,10 @@ const MemoryGame: React.FC = () => {
               });
               return updatedCards;
             });
-            setPlayerTurn(prevTurn => prevTurn === 1 ? 2 : 1); // Moved inside setTimeout
+            setPlayerTurn(prevTurn => prevTurn === 1 ? 2 : 1);
           }, 1000);
         }
       }
-      // Fetch game state after processing the turn
     })
 
     setCards(prevCards =>
@@ -100,6 +104,7 @@ const MemoryGame: React.FC = () => {
     );
   }
 
+  // Resets the game to its initial state
   const handleNewGame = () => {
     fetch('/api/initialize')
       .then(response => response.json())
