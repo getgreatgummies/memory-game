@@ -49,7 +49,7 @@ This project is a simple memory game built using React for the frontend and Flas
 2. **Run the frontend application:**
    ```bash
    cd ../frontend
-   npm run dev
+   npm vite
    ```
 
 
