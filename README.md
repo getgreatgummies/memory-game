@@ -1,4 +1,4 @@
-# Memory Game
+# Memory Game 
 
 ## Overview
 This project is a simple memory game built using React for the frontend and Flask for the backend. Players take turns flipping cards to find matching pairs. The game tracks scores for two players and declares a winner once all pairs are matched or the total score reaches 100.
