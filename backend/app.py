@@ -2,6 +2,8 @@ import random
 from flask import Flask, jsonify, request, abort
 from models import MemoryGame
 
+# jfdaljpjspajpajpa
+
 app = Flask(__name__)
 game = MemoryGame()
 
